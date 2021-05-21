@@ -66,6 +66,13 @@ app.put('/campgrounds/:id', async (req, res) => {
     res.redirect(`/campgrounds/${campground._id}`);
 });
 
+// destroy route, to delete a particular campground
+app.delete('/campgrounds/:id', async (req, res) => {
+    const { id } = req.params;
+    await Campground.findByIdAndDelete(id);
+    res.redirect('/campgrounds');
+});
+
 app.listen(8080, () => {
     console.log("SERVING ON PORT 8080!!!");
 });
