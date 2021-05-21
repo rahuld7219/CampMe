@@ -12,7 +12,7 @@ mongoose.connect('mongodb://localhost:27017/yelp-camp', {
 });
 
 const db = mongoose.connection;
-db.on("error", console.error.bind(console, "Database connection error:"));
+db.on("error", console.error.bind(console, "Database connection error:")); // we could instead use .then() .catch() after mongoose.connect()
 db.once("open", () => {
     console.log("Database connected!!");
 });
@@ -24,10 +24,9 @@ app.get('/', (req, res) => {
     res.render('home');
 });
 
-app.get('/makecampground', async (req, res) => {
-    const camp = new Campground({title: "My Backyard", description: "cheap camping!"});
-    await camp.save();
-    res.send(camp);
+app.get('/campgrounds', async (req, res) => {
+    const campgrounds = await Campground.find({});
+    res.render('campgrounds/index', { campgrounds });
 });
 
 app.listen(8080, () => {
