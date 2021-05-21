@@ -2,11 +2,12 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const Campground = require('./models/campground');
-const { urlencoded } = require('express');
+const methodOverride = require('method-override');
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useFindAndModify:false,
@@ -40,16 +41,29 @@ app.get('/campgrounds/new', (req, res) =>{
 
 // Create route, to handle the submitted form data by adding it to the campgrounds collection in database
 app.post('/campgrounds', async (req, res) =>{
-    console.log(req.body);
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
 });
 
 // show route, to show details of a particular campground
+// it should be below new route otherwise new taken as :id
 app.get('/campgrounds/:id', async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     res.render('campgrounds/show', { campground });
+});
+
+// edit route, to serve the form to edit a particular campground
+app.get('/campgrounds/:id/edit', async (req, res) => {
+    const campground = await Campground.findById(req.params.id);
+    res.render('campgrounds/edit', { campground });
+});
+
+// update route, to update the campground submitted by edit form
+app.put('/campgrounds/:id', async (req, res) => {
+    const { id } = req.params;
+    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    res.redirect(`/campgrounds/${campground._id}`);
 });
 
 app.listen(8080, () => {
