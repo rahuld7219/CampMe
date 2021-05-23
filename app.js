@@ -3,11 +3,16 @@ const path = require('path');
 const mongoose = require('mongoose');
 const Campground = require('./models/campground');
 const methodOverride = require('method-override');
+const ejsMate = require('ejs-mate');
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+
+app.engine('ejs', ejsMate); // tells to use ejs-mate engine for all ejs templates
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useFindAndModify:false,
@@ -20,9 +25,6 @@ db.on("error", console.error.bind(console, "Database connection error:")); // we
 db.once("open", () => {
     console.log("Database connected!!");
 });
-
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
     res.render('home');
