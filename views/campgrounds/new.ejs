@@ -1,14 +1,35 @@
 <% layout('layouts/boilerplate') %>
-<h1>New Campground</h1>
-<form action="/campgrounds" method="POST">
-<div>
-    <label for="title">Name: </label>
-    <input type="text" name="campground[title]" id="title">
-</div>
-<div>
-    <label for="location">Location: </label>
-    <input type="text" name="campground[location]" id="location">
-</div>
-<button>Add Campground</button>
-</form>
-<a href="/campgrounds">All Campgrounds</a>
+<section class="row">
+    <h1 class="text-center">New Campground</h1>
+    <div class="col-6 offset-3">
+        <form action="/campgrounds" method="POST">
+            <div class="mb-3">
+                <label class="form-label" for="title">Name: </label>
+                <input class="form-control" type="text" name="campground[title]" id="title">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="location">Location: </label>
+                <input class="form-control" type="text" name="campground[location]" id="location">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="image">Image URL: </label>
+                <input class="form-control" type="text" name="campground[image]" id="image">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="price">Campground Price: </label>
+                <div class="input-group">
+                    <span class="input-group-text" id="price-unit">$</span>
+                    <input class="form-control" type="text" name="campground[price]" id="price" placeholder="0.00" aria-label="price" aria-describedby="price-unit">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="description">Description: </label>
+                <textarea class="form-control" name="campground[description]" id="description" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-success">Add Campground</button>
+            </div>
+        </form>
+        <a href="/campgrounds">All Campgrounds</a>
+    </div>
+</section>

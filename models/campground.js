@@ -4,10 +4,10 @@ const Schema = mongoose.Schema; // for shorthand, can also do as -> const { Sche
 
 const campgroundSchema = new Schema({
     title: String,
-    price: Number,
-    description: String,
     location: String,
-    image: String
+    image: String,
+    price: Number,
+    description: String
 });
 
 module.exports = mongoose.model('Campground', campgroundSchema);
