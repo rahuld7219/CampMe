@@ -2,29 +2,29 @@
 <section class="row">
     <h1 class="text-center">Edit Campground</h1>
     <div class="col-6 offset-3">
-        <form action="/campgrounds/<%= campground.id %>?_method=PUT" method="POST">
+        <form action="/campgrounds/<%= campground.id %>?_method=PUT" method="POST" novalidate class="validated-form">
             <div class="mb-3">
                 <label class="form-label" for="title">Name: </label>
-                <input class="form-control" type="text" name="campground[title]" value="<%= campground.title %>" id="title">
+                <input class="form-control" type="text" name="campground[title]" value="<%= campground.title %>" id="title" required>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="location">Location: </label>
-                <input class="form-control" type="text" name="campground[location]" value="<%= campground.location %>" id="location">
+                <input class="form-control" type="text" name="campground[location]" value="<%= campground.location %>" id="location" required>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="image">Image URL: </label>
-                <input class="form-control" type="text" name="campground[image]" value="<%= campground.image %>" id="image">
+                <input class="form-control" type="text" name="campground[image]" value="<%= campground.image %>" id="image" required>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="price">Campground Price: </label>
                 <div class="input-group">
                     <span class="input-group-text" id="price-unit">$</span>
-                    <input class="form-control" type="text" name="campground[price]" value="<%= campground.price %>" id="price" placeholder="0.00" aria-label="price" aria-describedby="price-unit">
+                    <input class="form-control" type="text" name="campground[price]" value="<%= campground.price %>" id="price" placeholder="0.00" aria-label="price" aria-describedby="price-unit" required>
                 </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="description">Description: </label>
-                <textarea class="form-control" name="campground[description]" id="description" rows="3"><%= campground.description %></textarea>
+                <textarea class="form-control" name="campground[description]" id="description" rows="3" required><%= campground.description %></textarea>
             </div>
             <div class="mb-3">
                 <button class="btn btn-info">Update Campground</button>

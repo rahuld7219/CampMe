@@ -7,7 +7,7 @@ const ejsMate = require('ejs-mate');
 
 const app = express();
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true })); // using body-parsing middleware, to tell express how to parse the received POST/PUT,etc data(payload) to JS object, to that in req.body
 app.use(methodOverride('_method'));
 
 app.engine('ejs', ejsMate); // tells to use ejs-mate engine for all ejs templates
@@ -41,7 +41,7 @@ app.get('/campgrounds/new', (req, res) =>{
     res.render('campgrounds/new');
 });
 
-// Create route, to handle the submitted form data by adding it to the campgrounds collection in database
+// Create route, to handle the submitted form data by adding it to the campgrounds collection in database (new->create)
 app.post('/campgrounds', async (req, res) =>{
     const campground = new Campground(req.body.campground);
     await campground.save();
@@ -61,7 +61,7 @@ app.get('/campgrounds/:id/edit', async (req, res) => {
     res.render('campgrounds/edit', { campground });
 });
 
-// update route, to update the campground submitted by edit form
+// update route, to update the campground submitted by edit form  (edit->update)
 app.put('/campgrounds/:id', async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });

@@ -21,7 +21,7 @@ db.once("open", () => {
 // returns a random element from the given array
 const pickRandom = (array) => array[Math.floor(Math.random() * array.length)];
 
-// 1st deletes the collection data then insert 50 Campground documents with random title and random location
+// 1st deletes the collection data then insert 50 Campground documents with random title, location, image and price
 const seedDB = async () => {
     await Campground.deleteMany({});  //deletes everything in the 'campgrounds' collection
     for (let i = 0; i < 50; i++) {
