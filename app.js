@@ -42,10 +42,14 @@ app.get('/campgrounds/new', (req, res) =>{
 });
 
 // Create route, to handle the submitted form data by adding it to the campgrounds collection in database (new->create)
-app.post('/campgrounds', async (req, res) =>{
-    const campground = new Campground(req.body.campground);
-    await campground.save();
-    res.redirect(`/campgrounds/${campground._id}`);
+app.post('/campgrounds', async (req, res, next) =>{
+    try {
+        const campground = new Campground(req.body.campground);
+        await campground.save();
+        res.redirect(`/campgrounds/${campground._id}`);
+    } catch (e) {
+        next(e);
+    }
 });
 
 // show route, to show details of a particular campground
@@ -73,6 +77,10 @@ app.delete('/campgrounds/:id', async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
+});
+
+app.use((err, req, res, next) => {
+    res.send("Something Went Wrong!");
 });
 
 app.listen(8080, () => {
