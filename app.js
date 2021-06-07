@@ -46,7 +46,7 @@ app.get('/campgrounds/new', (req, res) =>{
 // Create route, to handle the submitted form data by adding it to the campgrounds collection in database (new->create)
 app.post('/campgrounds', catchAsync(async (req, res, next) => {
     // below line throw error if campground object(from new.ejs) is undefined, catched by catchAsync to pass it to next to handle.
-    // needed, if client side form validation not run, in case of request made from somewhere else like from Postman or Ajax requests.
+    // Needed, if client side form validation not run, in case of request made from somewhere else like from Postman or Ajax requests.
     if (!req.body.campground) throw new ExpressError("Inavlid Campground data", 400); 
     const campground = new Campground(req.body.campground); // it still gives a different error if campground is not an object, can get by requesting by Postman->body->x-www-form-urlencoded->key=campground, value="Rahul" (a string not an object)
     await campground.save();
@@ -87,8 +87,9 @@ app.all('*', (req, res, next) => {                  // * means any path
 
 // generic Error Handler
 app.use((err, req, res, next) => {
-    const { message = "Something Went Wrong!", statusCode = 400 } = err;
-    res.status(statusCode).send(message);
+    const { statusCode = 400 } = err;
+    if (!err.message) err.message = "Ohh No, Something went wrong!";
+    res.status(statusCode).render('error', { err });
 });
 
 app.listen(8080, () => {
