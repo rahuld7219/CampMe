@@ -2,11 +2,11 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const Campground = require('./models/campground');
+const { campgroundSchema } = require('./schemas');
 const catchAsync = require('./utils/catchAsync');
 const ExpressError = require('./utils/expressError');
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
-const Joi = require('joi');
 
 const app = express();
 
@@ -33,6 +33,20 @@ app.get('/', (req, res) => {
     res.render('home');
 });
 
+// middleware to validate the campground data
+const validateCampground = (req, res, next) => {
+    // validating the data using the joi schema
+    const { error } = campgroundSchema.validate(req.body);
+
+    // throwing error in express if there is data validation error
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg, 400); // as we used our catchAsync so it will catch this error and pass to next error handling middleware
+    } else {
+        next(); // call next apllication middleware
+    }
+}
+
 // index route, to list all campgrounds
 app.get('/campgrounds', catchAsync(async (req, res) => {
     const campgrounds = await Campground.find({});
@@ -45,28 +59,9 @@ app.get('/campgrounds/new', (req, res) =>{
 });
 
 // Create route, to handle the submitted form data by adding it to the campgrounds collection in database (new->create)
-app.post('/campgrounds', catchAsync(async (req, res, next) => {
+app.post('/campgrounds', validateCampground, catchAsync(async (req, res, next) => {
     // if (!req.body.campground) throw new ExpressError("Inavlid Campground data", 400);
 
-    // data validation using joi (it has nothing to do with express, mongoose or mongo)
-    // describing schema using joi 
-    const campgroundSchema = Joi.object({
-        campground: Joi.object({
-            title: Joi.string().required(),
-            price: Joi.number().required().min(0),
-            image: Joi.string().required(),
-            location: Joi.string().required(),
-            description: Joi.string()
-        }).required()
-    });
-    // validating the data using the joi schema
-    const { error } = campgroundSchema.validate(req.body);
-
-    // throwing error in express if there is data validation error
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',');
-        throw new ExpressError(msg, 400); // as we used our catchAsync so it will catch this error and pass to next
-    }
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`);
@@ -86,28 +81,7 @@ app.get('/campgrounds/:id/edit', catchAsync(async (req, res) => {
 }));
 
 // update route, to update the campground submitted by edit form  (edit->update)
-app.put('/campgrounds/:id', catchAsync(async (req, res) => {
-
-    // data validation using joi (it has nothing to do with express, mongoose or mongo)
-    // describing schema using joi 
-    const campgroundSchema = Joi.object({
-        campground: Joi.object({
-            title: Joi.string().required(),
-            price: Joi.number().required().min(0),
-            image: Joi.string().required(),
-            location: Joi.string().required(),
-            description: Joi.string()
-        }).required()
-    });
-    // validating the schema using joi
-    const { error } = campgroundSchema.validate(req.body);
-
-    // throwing error in express if there is data validation error
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',');
-        throw new ExpressError(msg, 400); // as we used our catchAsync so it will catch this error and pass to next
-    }
-
+app.put('/campgrounds/:id', validateCampground, catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     res.redirect(`/campgrounds/${campground._id}`);
