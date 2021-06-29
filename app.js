@@ -123,6 +123,19 @@ app.post('/campgrounds/:id/reviews', validateReview, catchAsync( async (req, res
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
+// Route to delete a review and its reference from the campground document
+app.delete('/campgrounds/:id/reviews/:reviewId', catchAsync(async (req, res) => {
+    const { id, reviewId } = req.params;
+
+    // delete the review document from the reviews collection
+    await Review.findByIdAndDelete(reviewId);
+
+    // delete the reference of the deleted review from the campground document (i.e., update the campground document)
+    // it first finds the campground document where _id=id then from the reviews array of that document remove those embedded documents having reviewId as an eleemnt.
+    await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    res.redirect(`/campgrounds/${id}`);
+}));
+
 // To throw an Error if request path is unknown, this should be below all the above routes
 app.all('*', (req, res, next) => {                  // * means any path
     next(new ExpressError("Page Not Found!", 404));
