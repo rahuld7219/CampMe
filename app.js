@@ -90,7 +90,7 @@ app.post('/campgrounds', validateCampground, catchAsync(async (req, res, next) =
 // show route, to show details of a particular campground
 // it should be below new route otherwise new taken as :id
 app.get('/campgrounds/:id', catchAsync(async (req, res) => {
-    const campground = await Campground.findById(req.params.id);
+    const campground = await Campground.findById(req.params.id).populate('reviews');
     res.render('campgrounds/show', { campground });
 }));
 
