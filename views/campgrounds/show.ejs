@@ -2,7 +2,7 @@
 
 <section class="row">
     <div class="col-6 offset-3">
-        <div class="card mb-5">
+        <div class="card mb-3">
             <img src="<%= campground.image %>" class="card-img-top" alt="camp-photo">
             <div class="card-body">
             <h5 class="card-title"><%= campground.title %></h5>
@@ -22,5 +22,17 @@
                 2 days ago
             </div>
         </div>
+        <h2>Leave a Review</h2>
+        <form action="" class="mb-3">
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating</label>
+                <input type="range" name="review[rating]" id="rating" class="form-range" min="1" max="5">
+            </div>
+            <div class="mb-3">
+                <label for="body" class="form-label">Review</label>
+                <textarea name="review[body]" id="body" class="form-control" cols="30" rows="3"></textarea>
+            </div>
+            <button class="btn btn-success">Submit</button>
+        </form>
     </div>
 </section>
