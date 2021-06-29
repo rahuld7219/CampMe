@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const Campground = require('./models/campground');
-const { campgroundSchema } = require('./schemas');
+const { campgroundSchema, reviewSchema } = require('./schemas');
 const catchAsync = require('./utils/catchAsync');
 const ExpressError = require('./utils/expressError');
 const methodOverride = require('method-override');
@@ -39,7 +39,7 @@ db.once("open", () => {
 
 // middleware to validate the campground data
 const validateCampground = (req, res, next) => {
-    // validating the data using the joi schema
+    // validating the req.body data using the joi schema
     const { error } = campgroundSchema.validate(req.body);
 
     // throwing error in express if there is data validation error
@@ -48,6 +48,18 @@ const validateCampground = (req, res, next) => {
         throw new ExpressError(msg, 400); // as we used our catchAsync so it will catch this error and pass to next error handling middleware
     } else {
         next(); // call next apllication middleware
+    }
+}
+
+// middleware to validate the review data
+const validateReview = (req, res, next) => {
+    // validating the req.body data using the joi schema
+    const { error } = reviewSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg, 400)
+    } else {
+        next();
     }
 }
 
@@ -102,7 +114,7 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     res.redirect('/campgrounds');
 }));
 
-app.post('/campgrounds/:id/reviews', catchAsync( async (req, res) => {
+app.post('/campgrounds/:id/reviews', validateReview, catchAsync( async (req, res) => {
     const campground = await Campground.findById(req.params.id);
     const review = new Review(req.body.review); // as the form data passed as grouped in "review" object
     campground.reviews.push(review);
