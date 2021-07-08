@@ -3,10 +3,11 @@ const path = require('path');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
+const session = require('express-session');
+const flash = require('connect-flash');
 const ExpressError = require('./utils/expressError');
 const campgrounds = require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
-const session = require('express-session');
 
 const app = express();
 
@@ -52,10 +53,23 @@ const sessionConfig = {
 
 // mounting/executing session middleware
 app.use(session(sessionConfig));
+// mounting/executing flash middleware
+app.use(flash());
 
 app.get('/', (req, res) => {
     res.render('home');
 });
+
+// add flash messages to res.locals, so that it will be available to every template
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+});
+/* 
+can use a single variable as res.locals.messages instead of separate res.locals.success and res.locals.error,
+and messages can be [{success: "it worked!", danger: "Problem!"}] and then iterate over it accordingly in flash.ejs
+*/
 
 // mounting routes like middlewares
 app.use('/campgrounds', campgrounds); // every campgrounds routes path will be prefixed with /campgrounds

@@ -1,0 +1,20 @@
+<!-- To display flash messages -->
+
+<% if (success && success.length) { %> 
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= success %> 
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<% } %>
+
+<% if (error && error.length) { %> 
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= error %> 
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<% } %> 
+
+<!-- 
+no need to write separate code for error and success if we have single variable say messages instead of success and error in res.locals,
+messages can be [{success: "it worked!", danger: "Problem!"}] and then we iterate over it accordingly
+-->

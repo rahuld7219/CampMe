@@ -27,6 +27,7 @@ router.post('/', validateReview, catchAsync( async (req, res) => {
     campground.reviews.push(review);
     await review.save();
     await campground.save();
+    req.flash('success', "sucessfully created the review!");
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
@@ -40,6 +41,7 @@ router.delete('/:reviewId', catchAsync(async (req, res) => {
     // delete the reference of the deleted review from the campground document (i.e., update the campground document)
     // it first finds the campground document where _id=id then from the reviews array of that document remove those embedded documents having reviewId as an eleemnt.
     await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    req.flash('success', "Successfully deleted the review!");
     res.redirect(`/campgrounds/${id}`);
 }));
 

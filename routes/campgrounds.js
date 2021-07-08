@@ -38,6 +38,7 @@ router.post('/', validateCampground, catchAsync(async (req, res, next) => {
 
     const campground = new Campground(req.body.campground);
     await campground.save();
+    req.flash('success', "Successfully made a new campground!"); // set a flash message
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
@@ -45,12 +46,20 @@ router.post('/', validateCampground, catchAsync(async (req, res, next) => {
 // it should be below new route otherwise new taken as :id
 router.get('/:id', catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id).populate('reviews');
+    if (!campground) {
+        req.flash('error', 'Cannot find that campground!');
+        return res.redirect('/campgrounds');
+    }
     res.render('campgrounds/show', { campground });
 }));
 
 // edit route, to serve the form to edit a particular campground
 router.get('/:id/edit', catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
+    if (!campground) {
+        req.flash('error', 'Cannot find that campground!');
+        return res.redirect('/campgrounds');
+    }
     res.render('campgrounds/edit', { campground });
 }));
 
@@ -58,6 +67,7 @@ router.get('/:id/edit', catchAsync(async (req, res) => {
 router.put('/:id', validateCampground, catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    req.flash('success', "Successfully updated the campground!");
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
@@ -67,7 +77,7 @@ router.delete('/:id', catchAsync(async (req, res) => {
     
     await Campground.findByIdAndDelete(id);
     // after deleting, our mongoose middleware findOneAndDelete(a query middleware) for the campgroundSchema runs passing the deleted campground document as the parameter to its callback
-
+    req.flash('success', "Successfully deleted the campground!");
     res.redirect('/campgrounds');
 }));
 
