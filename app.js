@@ -6,6 +6,7 @@ const ejsMate = require('ejs-mate');
 const ExpressError = require('./utils/expressError');
 const campgrounds = require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
+const session = require('express-session');
 
 const app = express();
 
@@ -36,6 +37,21 @@ db.once("open", () => {
     console.log("Database connected!!");
 });
 
+// setting options object to setup a session
+const sessionConfig = {
+    secret: "this_should_be_a_better_secret_key!", // setting a secret key to sign the session id cookie
+    resave: false,
+    saveUninitialized: true,
+    // setup some parameters for session id cookie sent
+    cookie: {
+        httpOnly: true, //  helps mitigate the risk of client side script accessing the protected cookie, it is also by default true even if we don't specify
+        expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // expiration date for cookie in ms, counted from when sent
+        maxAge: 7 * 24 * 60 * 60 * 1000 // time duration for the cookie before expiring
+    }
+}
+
+// mounting/executing session middleware
+app.use(session(sessionConfig));
 
 app.get('/', (req, res) => {
     res.render('home');
