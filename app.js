@@ -11,6 +11,7 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true })); // using body-parsing middleware, to tell express how to parse the received POST/PUT,etc data(payload) to JS object, to that in req.body
 app.use(methodOverride('_method'));
+app.use(express.static(path.join(__dirname, 'public'))); // to serve static files like javascripts, css, audio, images, logo, etc.
 
 app.engine('ejs', ejsMate); // tells to use ejs-mate engine for all ejs templates
 app.set('views', path.join(__dirname, 'views'));
