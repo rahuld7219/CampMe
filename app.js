@@ -8,6 +8,9 @@ const flash = require('connect-flash');
 const ExpressError = require('./utils/expressError');
 const campgrounds = require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
+const passport = require('passport'); // an authentication middleware for Node.
+const LocalStrategy = require('passport-local'); // to authenticate using a username and password
+const User = require('./models/user');
 
 const app = express();
 
@@ -22,7 +25,8 @@ app.set('view engine', 'ejs');
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useFindAndModify:false,
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useCreateIndex: true
 });
 // .then(() => {
 //     console.log("MONGO CONNECTION OPEN!!!")
@@ -56,6 +60,12 @@ app.use(session(sessionConfig));
 // mounting/executing flash middleware
 app.use(flash());
 
+app.use(passport.initialize()); // initialize Passport
+app.use(passport.session()); // for persistent login, be sure to use it only after session()
+passport.use(new LocalStrategy(User.authenticate())); // tell to use static authenticate method (provided by passport-local-mongoose) of User model in LocalStrategy(i.e., in authentication using a username and password)
+passport.serializeUser(User.serializeUser()); // specify to add a user to the session use static serialize method of User model (provided by passport-local-mongoose)
+passport.deserializeUser(User.deserializeUser()); // specify to remove a user from the session use static deserialize method of User model (provided by passport-local-mongoose)
+
 app.get('/', (req, res) => {
     res.render('home');
 });
@@ -70,6 +80,13 @@ app.use((req, res, next) => {
 can use a single variable as res.locals.messages instead of separate res.locals.success and res.locals.error,
 and messages can be [{success: "it worked!", danger: "Problem!"}] and then iterate over it accordingly in flash.ejs
 */
+
+// hardcoded user registration demo
+app.get('/registerfakeuser', async (req, res) => {
+    const user = new User({email: "rd@gmail.com", username: "rd"});
+    const registeredUser = await User.register(user, 'patanahi');
+    res.send(registeredUser);
+});
 
 // mounting routes like middlewares
 app.use('/campgrounds', campgrounds); // every campgrounds routes path will be prefixed with /campgrounds
