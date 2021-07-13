@@ -6,8 +6,9 @@ const ejsMate = require('ejs-mate');
 const session = require('express-session');
 const flash = require('connect-flash');
 const ExpressError = require('./utils/expressError');
-const campgrounds = require('./routes/campgrounds');
-const reviews = require('./routes/reviews');
+const campgroundRoutes = require('./routes/campgrounds');
+const reviewRoutes = require('./routes/reviews');
+const userRoutes = require('./routes/users');
 const passport = require('passport'); // an authentication middleware for Node.
 const LocalStrategy = require('passport-local'); // to authenticate using a username and password
 const User = require('./models/user');
@@ -89,8 +90,9 @@ app.get('/registerfakeuser', async (req, res) => {
 });
 
 // mounting routes like middlewares
-app.use('/campgrounds', campgrounds); // every campgrounds routes path will be prefixed with /campgrounds
-app.use('/campgrounds/:id/reviews', reviews); // must set { mergeParams: true } in express.Router() of reviews router to access id param
+app.use(userRoutes); // by default the path is '/'
+app.use('/campgrounds', campgroundRoutes); // every campgrounds routes path will be prefixed with /campgrounds
+app.use('/campgrounds/:id/reviews', reviewRoutes); // must set { mergeParams: true } in express.Router() of reviews router to access id param
 
 
 // To throw an Error if request path is unknown, this should be below all the above routes
