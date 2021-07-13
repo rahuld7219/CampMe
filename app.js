@@ -61,20 +61,28 @@ app.use(session(sessionConfig));
 // mounting/executing flash middleware
 app.use(flash());
 
-app.use(passport.initialize()); // initialize Passport
+app.use(passport.initialize()); // initialize Passport (i.e., assigns _passport object to request object and do other stuffs)
 app.use(passport.session()); // for persistent login, be sure to use it only after session()
 passport.use(new LocalStrategy(User.authenticate())); // tell to use static authenticate method (provided by passport-local-mongoose) of User model in LocalStrategy(i.e., in authentication using a username and password)
-passport.serializeUser(User.serializeUser()); // specify to add a user to the session use static serialize method of User model (provided by passport-local-mongoose)
-passport.deserializeUser(User.deserializeUser()); // specify to remove a user from the session use static deserialize method of User model (provided by passport-local-mongoose)
+passport.serializeUser(User.serializeUser()); // specify how to add a user info to the session using static serialize method of User model (provided by passport-local-mongoose)
+passport.deserializeUser(User.deserializeUser()); // specify how to retrive a user info from the session using static deserialize method of User model (provided by passport-local-mongoose)
+/*
+serializer adds user data into the session 
+deserializer assign user data from the session to req.user(salt and password not included), so that it can be accessed when required
+*/
+
 
 app.get('/', (req, res) => {
     res.render('home');
 });
 
-// add flash messages to res.locals, so that it will be available to every template
+// adding data to res.locals, so that these will be available to every template without needing to pass these to each template separately.
 app.use((req, res, next) => {
-    res.locals.success = req.flash('success');
-    res.locals.error = req.flash('error');
+    console.log(req);
+    res.locals.currentUser = req.user // adding currently logged in user info(provided by passport as req.user) to res.locals 
+    // req.user have undefined if no user logged in currently
+    res.locals.success = req.flash('success'); // adding success flash messages
+    res.locals.error = req.flash('error'); // adding error flash messages
     next();
 });
 /* 
