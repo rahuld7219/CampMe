@@ -1,10 +1,12 @@
 const express = require('express');
+const passport = require('passport');
 const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync');
 
+
 const router = express.Router();
 
-
+// serve registration form
 router.get('/register', (req, res) => {
     res.render('users/register');
 })
@@ -16,12 +18,22 @@ router.post('/register', catchAsync(async (req, res) => {
         const user = new User({ username, email});
         const registeredUser = await User.register(user, password);
         req.flash('success', 'Welcome to Yelp Camp!');
-        res.redirect('campgrounds');
+        res.redirect('/campgrounds');
     } catch (err) { // to flash errors like if a username already registered
         req.flash('error', err.message);
         res.redirect('/register');
     }
 }));
 
+// serve login form
+router.get('/login', (req, res) => {
+    res.render('users/login');
+});
+
+// authenticate(login) a user, using passport.authenticate() middleware
+router.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), (req, res) => { // on success passport.authenticate() calls next() by default
+    req.flash('success', 'Welcome Back!');
+    res.redirect('/campgrounds');
+});
 
 module.exports = router;
