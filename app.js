@@ -72,11 +72,24 @@ deserializer assign user data from the session to req.user(salt and password not
 */
 
 
+// adds some extra data in the session which would be needed for various fetures
+app.use((req, res, next) => {
+
+    // To remember the path from which the request is coming
+    // used in login route to redirect the user back to previous page, after login, if not logged in before
+    if (req.originalUrl !== '/login') { // '/login' excluded, as if request is for '/login' then it creates a loop if redirected back to /login after logged in
+        // ![ '/login', '/'].includes(req.originalUrl) ---> condition can be this also in if
+        req.session.returnTo = req.originalUrl; // store the full request path in returnTo variable in req.session
+    }
+    next();
+});
+
 app.get('/', (req, res) => {
     res.render('home');
 });
 
-// adding data to res.locals, so that these will be available to every template without needing to pass these to each template separately.
+
+// adds some data to res.locals, so that these will be available to every template without needing to pass these to each template separately.
 app.use((req, res, next) => {
     res.locals.currentUser = req.user // adding currently logged in user info(provided by passport as req.user) to res.locals 
     // req.user have undefined if no user logged in currently

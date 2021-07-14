@@ -36,7 +36,9 @@ router.get('/login', (req, res) => {
 // authenticate(login) a user, using passport.authenticate() middleware
 router.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), (req, res) => { // on success passport.authenticate() calls next() by default
     req.flash('success', 'Welcome Back!');
-    res.redirect('/campgrounds');
+    const redirectTo = req.session.returnTo || '/campgrounds';
+    delete req.session.returnTo;
+    res.redirect(redirectTo);
 });
 
 // logout a user
