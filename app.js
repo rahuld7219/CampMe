@@ -78,7 +78,6 @@ app.get('/', (req, res) => {
 
 // adding data to res.locals, so that these will be available to every template without needing to pass these to each template separately.
 app.use((req, res, next) => {
-    console.log(req);
     res.locals.currentUser = req.user // adding currently logged in user info(provided by passport as req.user) to res.locals 
     // req.user have undefined if no user logged in currently
     res.locals.success = req.flash('success'); // adding success flash messages
