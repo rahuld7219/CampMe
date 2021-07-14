@@ -76,7 +76,6 @@ router.put('/:id', isLoggedIn, validateCampground, catchAsync(async (req, res) =
 // destroy route, to delete a particular campground
 router.delete('/:id', isLoggedIn, catchAsync(async (req, res) => {
     const { id } = req.params;
-    
     await Campground.findByIdAndDelete(id);
     // after deleting, our mongoose middleware findOneAndDelete(a query middleware) for the campgroundSchema runs passing the deleted campground document as the parameter to its callback
     req.flash('success', "Successfully deleted the campground!");

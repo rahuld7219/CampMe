@@ -74,7 +74,6 @@ deserializer assign user data from the session to req.user(salt and password not
 
 // adds some extra data in the session which would be needed for various fetures
 app.use((req, res, next) => {
-
     // To remember the path from which the request is coming
     // used in login route to redirect the user back to previous page, after login, if not logged in before
     if (req.originalUrl !== '/login') { // '/login' excluded, as if request is for '/login' then it creates a loop if redirected back to /login after logged in
@@ -83,11 +82,6 @@ app.use((req, res, next) => {
     }
     next();
 });
-
-app.get('/', (req, res) => {
-    res.render('home');
-});
-
 
 // adds some data to res.locals, so that these will be available to every template without needing to pass these to each template separately.
 app.use((req, res, next) => {
@@ -102,11 +96,8 @@ can use a single variable as res.locals.messages instead of separate res.locals.
 and messages can be [{success: "it worked!", danger: "Problem!"}] and then iterate over it accordingly in flash.ejs
 */
 
-// hardcoded user registration demo
-app.get('/registerfakeuser', async (req, res) => {
-    const user = new User({email: "rd@gmail.com", username: "rd"});
-    const registeredUser = await User.register(user, 'patanahi');
-    res.send(registeredUser);
+app.get('/', (req, res) => {
+    res.render('home');
 });
 
 // mounting routes like middlewares
