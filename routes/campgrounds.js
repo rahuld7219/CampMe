@@ -57,10 +57,15 @@ router.get('/:id', catchAsync(async (req, res) => {
 
 // edit route, to serve the form to edit a particular campground
 router.get('/:id/edit', isLoggedIn, catchAsync(async (req, res) => {
-    const campground = await Campground.findById(req.params.id);
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
     if (!campground) {
         req.flash('error', 'Cannot find that campground!');
         return res.redirect('/campgrounds');
+    }
+    if (!campground.author.equals(req.user._id)) {
+        req.flash('error', "You are not authorized to do that!");
+        return res.redirect(`/campgrounds/${id}`);
     }
     res.render('campgrounds/edit', { campground });
 }));
@@ -68,6 +73,11 @@ router.get('/:id/edit', isLoggedIn, catchAsync(async (req, res) => {
 // update route, to update the campground submitted by edit form  (edit->update)
 router.put('/:id', isLoggedIn, validateCampground, catchAsync(async (req, res) => {
     const { id } = req.params;
+    const camp = await Campground.findById(id);
+    if (!camp.author.equals(req.user._id)) {
+        req.flash('error', "You are not authorized to do that!");
+        return res.redirect(`/campgrounds/${id}`);
+    }
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     req.flash('success', "Successfully updated the campground!");
     res.redirect(`/campgrounds/${campground._id}`);
@@ -76,6 +86,11 @@ router.put('/:id', isLoggedIn, validateCampground, catchAsync(async (req, res) =
 // destroy route, to delete a particular campground
 router.delete('/:id', isLoggedIn, catchAsync(async (req, res) => {
     const { id } = req.params;
+    const camp = await Campground.findById(id);
+    if (!camp.author.equals(req.user._id)) {
+        req.flash('error', "You are not authorized to do that!");
+        return res.redirect(`/campgrounds/${id}`);
+    }
     await Campground.findByIdAndDelete(id);
     // after deleting, our mongoose middleware findOneAndDelete(a query middleware) for the campgroundSchema runs passing the deleted campground document as the parameter to its callback
     req.flash('success', "Successfully deleted the campground!");
