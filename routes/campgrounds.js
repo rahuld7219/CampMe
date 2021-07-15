@@ -1,26 +1,10 @@
 const express = require('express');
 const catchAsync = require('../utils/catchAsync');
-const ExpressError = require('../utils/expressError');
 const Campground = require('../models/campground');
-const { campgroundSchema } = require('../schemas');
-const { isLoggedIn } = require('../middleware');
+const { isLoggedIn, isAuthor, validateCampground } = require('../middleware');
 
 // creating a router object
 const router = express.Router();
-
-// middleware to validate the campground data
-const validateCampground = (req, res, next) => {
-    // validating the req.body data using the joi schema
-    const { error } = campgroundSchema.validate(req.body);
-
-    // throwing error in express if there is data validation error
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',');
-        throw new ExpressError(msg, 400);
-    } else {
-        next(); // call next apllication middleware
-    }
-}
 
 // index route, to list all campgrounds
 router.get('/', catchAsync(async (req, res) => {
@@ -56,41 +40,27 @@ router.get('/:id', catchAsync(async (req, res) => {
 }));
 
 // edit route, to serve the form to edit a particular campground
-router.get('/:id/edit', isLoggedIn, catchAsync(async (req, res) => {
+router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     if (!campground) {
         req.flash('error', 'Cannot find that campground!');
         return res.redirect('/campgrounds');
     }
-    if (!campground.author.equals(req.user._id)) {
-        req.flash('error', "You are not authorized to do that!");
-        return res.redirect(`/campgrounds/${id}`);
-    }
     res.render('campgrounds/edit', { campground });
 }));
 
 // update route, to update the campground submitted by edit form  (edit->update)
-router.put('/:id', isLoggedIn, validateCampground, catchAsync(async (req, res) => {
+router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(async (req, res) => {
     const { id } = req.params;
-    const camp = await Campground.findById(id);
-    if (!camp.author.equals(req.user._id)) {
-        req.flash('error', "You are not authorized to do that!");
-        return res.redirect(`/campgrounds/${id}`);
-    }
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
     req.flash('success', "Successfully updated the campground!");
     res.redirect(`/campgrounds/${campground._id}`);
 }));
 
 // destroy route, to delete a particular campground
-router.delete('/:id', isLoggedIn, catchAsync(async (req, res) => {
+router.delete('/:id', isLoggedIn, isAuthor, catchAsync(async (req, res) => {
     const { id } = req.params;
-    const camp = await Campground.findById(id);
-    if (!camp.author.equals(req.user._id)) {
-        req.flash('error', "You are not authorized to do that!");
-        return res.redirect(`/campgrounds/${id}`);
-    }
     await Campground.findByIdAndDelete(id);
     // after deleting, our mongoose middleware findOneAndDelete(a query middleware) for the campgroundSchema runs passing the deleted campground document as the parameter to its callback
     req.flash('success', "Successfully deleted the campground!");
