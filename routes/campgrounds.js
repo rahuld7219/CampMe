@@ -2,79 +2,31 @@ const express = require('express');
 const catchAsync = require('../utils/catchAsync');
 const Campground = require('../models/campground');
 const { isLoggedIn, isAuthor, validateCampground } = require('../middleware');
+const campgrounds = require('../controllers/campgrounds');
 
 // creating a router object
 const router = express.Router();
 
 // index route, to list all campgrounds
-router.get('/', catchAsync(async (req, res) => {
-    const campgrounds = await Campground.find({});
-    res.render('campgrounds/index', { campgrounds });
-}));
+router.get('/', catchAsync(campgrounds.index));
 
 // new route, to serve a form for creating a campground
-router.get('/new', isLoggedIn, (req, res) =>{
-    res.render('campgrounds/new');
-});
+router.get('/new', isLoggedIn, campgrounds.renderNewForm);
 
 // Create route, to handle the submitted form data by adding it to the campgrounds collection in database (new->create)
-router.post('/', isLoggedIn, validateCampground, catchAsync(async (req, res, next) => {
-    // if (!req.body.campground) throw new ExpressError("Inavlid Campground data", 400);
-
-    const campground = new Campground(req.body.campground);
-    campground.author = req.user._id;
-    await campground.save();
-    req.flash('success', "Successfully made a new campground!"); // set a flash message
-    res.redirect(`/campgrounds/${campground._id}`);
-}));
+router.post('/', isLoggedIn, validateCampground, catchAsync(campgrounds.createCampground));
 
 // show route, to show details of a particular campground
 // it should be below new route otherwise new taken as :id
-router.get('/:id', catchAsync(async (req, res) => {
-    const campground = await Campground.findById(req.params.id)
-        .populate({
-        path: 'reviews', // populate reviews array of the campground
-        populate: { path: 'author' } // populate author field for each review of the campground
-        })
-        .populate('author'); // populate author field of the campground
-
-        /* above we populated with every fields of the models but
-         if data is big then only populate with required fields, like only with username...
-        */
-
-    if (!campground) {
-        req.flash('error', 'Cannot find that campground!');
-        return res.redirect('/campgrounds');
-    }
-    res.render('campgrounds/show', { campground });
-}));
+router.get('/:id', catchAsync(campgrounds.showCampground));
 
 // edit route, to serve the form to edit a particular campground
-router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-    if (!campground) {
-        req.flash('error', 'Cannot find that campground!');
-        return res.redirect('/campgrounds');
-    }
-    res.render('campgrounds/edit', { campground });
-}));
+router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(campgrounds.renderEditForm));
 
 // update route, to update the campground submitted by edit form  (edit->update)
-router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
-    req.flash('success', "Successfully updated the campground!");
-    res.redirect(`/campgrounds/${campground._id}`);
-}));
+router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(campgrounds.updateCampground));
 
 // destroy route, to delete a particular campground
-router.delete('/:id', isLoggedIn, isAuthor, catchAsync(async (req, res) => {
-    const { id } = req.params;
-    await Campground.findByIdAndDelete(id);
-    // after deleting, our mongoose middleware findOneAndDelete(a query middleware) for the campgroundSchema runs passing the deleted campground document as the parameter to its callback
-    req.flash('success', "Successfully deleted the campground!");
-    res.redirect('/campgrounds');
-}));
+router.delete('/:id', isLoggedIn, isAuthor, catchAsync(campgrounds.deleteCampground));
 
 module.exports = router;
