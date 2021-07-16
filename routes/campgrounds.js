@@ -6,26 +6,25 @@ const campgrounds = require('../controllers/campgrounds');
 // creating a router object
 const router = express.Router();
 
-// index route, to list all campgrounds
-router.get('/', catchAsync(campgrounds.index));
+router.route('/')
+    // index route, to list all campgrounds
+    .get(catchAsync(campgrounds.index))
+    // Create route, to handle the submitted form data by adding it to the campgrounds collection in database (new->create)
+    .post(isLoggedIn, validateCampground, catchAsync(campgrounds.createCampground));
 
 // new route, to serve a form for creating a campground
 router.get('/new', isLoggedIn, campgrounds.renderNewForm);
 
-// Create route, to handle the submitted form data by adding it to the campgrounds collection in database (new->create)
-router.post('/', isLoggedIn, validateCampground, catchAsync(campgrounds.createCampground));
-
-// show route, to show details of a particular campground
-// it should be below new route otherwise new taken as :id
-router.get('/:id', catchAsync(campgrounds.showCampground));
-
 // edit route, to serve the form to edit a particular campground
 router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(campgrounds.renderEditForm));
 
-// update route, to update the campground submitted by edit form  (edit->update)
-router.put('/:id', isLoggedIn, isAuthor, validateCampground, catchAsync(campgrounds.updateCampground));
-
-// destroy route, to delete a particular campground
-router.delete('/:id', isLoggedIn, isAuthor, catchAsync(campgrounds.deleteCampground));
+router.route('/:id')
+    // show route, to show details of a particular campground
+    // it should be below new route otherwise new taken as :id
+    .get(catchAsync(campgrounds.showCampground))
+    // update route, to update the campground submitted by edit form  (edit->update)
+    .put(isLoggedIn, isAuthor, validateCampground, catchAsync(campgrounds.updateCampground))
+    // destroy route, to delete a particular campground
+    .delete(isLoggedIn, isAuthor, catchAsync(campgrounds.deleteCampground));
 
 module.exports = router;

@@ -6,17 +6,18 @@ const users = require('../controllers/users')
 
 const router = express.Router();
 
-// serve registration form
-router.get('/register', users.renderRegister);
+router.route('/register')
+    // serve registration form
+    .get(users.renderRegister)
+    // Register a user
+    .post(catchAsync(users.register));
 
-// Register a user
-router.post('/register', catchAsync(users.register));
-
-// serve login form
-router.get('/login', users.renderLogin);
-
-// authenticate(login) a user, using passport.authenticate() middleware
-router.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), users.login); // on success passport.authenticate() calls next() by default
+router.route('/login')
+    // serve login form
+    .get(users.renderLogin)
+    // authenticate(login) a user, using passport.authenticate() middleware
+    .post(passport.authenticate('local', { failureFlash: true, failureRedirect: '/login' }), users.login);
+    /* on success passport.authenticate() calls next() by default */
 
 // logout a user
 router.get('/logout', users.logout);
