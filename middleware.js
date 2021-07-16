@@ -2,8 +2,10 @@
 
 
 const Campground = require('./models/campground');
+const Review = require('./models/review');
 const ExpressError = require('./utils/expressError');
 const { campgroundSchema, reviewSchema } = require('./schemas');
+
 
 // middleware to validate the campground data
 module.exports.validateCampground = (req, res, next) => {
@@ -47,6 +49,17 @@ module.exports.isAuthor = async (req, res, next) => {
     const campground = await Campground.findById(id);
     if (!campground.author.equals(req.user._id)) {
         req.flash('error', "You are not authorized to do that!");
+        return res.redirect(`/campgrounds/${id}`);
+    }
+    next();
+};
+
+// middleware to check for Authorization to modify a review
+module.exports.isReviewAuthor = async (req, res, next) => {
+    const { id, reviewId } = req.params;
+    const review = await Review.findById(reviewId);
+    if (!review.author.equals(req.user._id)) {  // if current logged in user is the author of the review he/she wants too modify
+        req.flash('error', 'You are not authorized to do that!');
         return res.redirect(`/campgrounds/${id}`);
     }
     next();

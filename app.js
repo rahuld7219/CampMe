@@ -76,7 +76,7 @@ deserializer assign user data from the session to req.user(salt and password not
 app.use((req, res, next) => {
     // To remember the path from which the request is coming
     // used in login route to redirect the user back to previous page, after login, if not logged in before
-    if (req.originalUrl !== '/login') { // '/login' excluded, as if request is for '/login' then it creates a loop if redirected back to /login after logged in
+    if (req.originalUrl !== '/login' && req.method === 'GET') { // '/login' excluded, as if request is for '/login' then it creates a loop if redirected back to /login after logged in
         // ![ '/login', '/'].includes(req.originalUrl) ---> condition can be this also in if
         req.session.returnTo = req.originalUrl; // store the full request path in returnTo variable in req.session
     }
@@ -96,9 +96,10 @@ can use a single variable as res.locals.messages instead of separate res.locals.
 and messages can be [{success: "it worked!", danger: "Problem!"}] and then iterate over it accordingly in flash.ejs
 */
 
+
 app.get('/', (req, res) => {
     res.render('home');
-});
+});  
 
 // mounting routes like middlewares
 app.use(userRoutes); // by default the path is '/'

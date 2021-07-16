@@ -31,7 +31,17 @@ router.post('/', isLoggedIn, validateCampground, catchAsync(async (req, res, nex
 // show route, to show details of a particular campground
 // it should be below new route otherwise new taken as :id
 router.get('/:id', catchAsync(async (req, res) => {
-    const campground = await Campground.findById(req.params.id).populate('reviews').populate('author');
+    const campground = await Campground.findById(req.params.id)
+        .populate({
+        path: 'reviews', // populate reviews array of the campground
+        populate: { path: 'author' } // populate author field for each review of the campground
+        })
+        .populate('author'); // populate author field of the campground
+
+        /* above we populated with every fields of the models but
+         if data is big then only populate with required fields, like only with username...
+        */
+
     if (!campground) {
         req.flash('error', 'Cannot find that campground!');
         return res.redirect('/campgrounds');
