@@ -1,4 +1,5 @@
 const Campground = require('../models/campground');
+const { cloudinary } = require('../cloudinary'); // node automatically imports index.js from a folder
 
 
 module.exports.index = async (req, res) => {
@@ -12,8 +13,8 @@ module.exports.renderNewForm = (req, res) =>{
 
 module.exports.createCampground = async (req, res, next) => {
     // if (!req.body.campground) throw new ExpressError("Inavlid Campground data", 400);
-
     const campground = new Campground(req.body.campground);
+    campground.images = req.files.map( f => ({ url: f.path, filename: f.filename }) ); // add images to the campground
     campground.author = req.user._id;
     await campground.save();
     req.flash('success', "Successfully made a new campground!"); // set a flash message
@@ -51,7 +52,18 @@ module.exports.renderEditForm = async (req, res) => {
 
 module.exports.updateCampground = async (req, res) => {
     const { id } = req.params;
+    const { deleteImages } = req.body;
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    if (deleteImages) { // if there is an array of images to delete
+        for (let filename of deleteImages) {
+            await cloudinary.uploader.destroy(filename); // delete images from the cloudinary
+        }
+        // delete images, which has the 'filename' in 'deleteImages' array, from the 'images' array of the current campground, from the mongo database
+        await campground.updateOne({ $pull: { images: { filename: { $in: deleteImages }}}});
+    }
+    const images = req.files.map( f => ({ url: f.path, filename: f.filename}) );
+    campground.images.push(...images); // add images to the campground
+    await campground.save();
     req.flash('success', "Successfully updated the campground!");
     res.redirect(`/campgrounds/${campground._id}`);
 };

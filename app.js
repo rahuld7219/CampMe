@@ -1,3 +1,8 @@
+// require and configure dotenv package in development mode
+if (process.env.NODE_ENV !== "production") {
+	require('dotenv').config();
+}
+
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -15,7 +20,10 @@ const User = require('./models/user');
 
 const app = express();
 
-app.use(express.urlencoded({ extended: true })); // using body-parsing middleware, to tell express how to parse the received POST/PUT,etc data(payload) to JS object, to that in req.body
+app.use(express.urlencoded({ extended: true }));
+// using a body-parsing middleware, to tell express how to parse the received urlencoded data(payload) to JS object.
+// it adds a body object populated with the form data in the request object(i.e., req.body)
+//(urlencoded data means normal default form data i.e., data of form having enctype of application/x-www-form-urlencoded)
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public'))); // to serve static files like javascripts, css, audio, images, logo, etc.
 

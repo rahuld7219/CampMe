@@ -3,8 +3,26 @@
 
 <section class="row">
     <div class="col-6">
+        <div id="campgroundCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <% campground.images.forEach((img, i) => { %>
+              <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
+                <img src="<%= img.url %>" class="d-block w-100" alt="camp-slide-image">
+              </div>
+              <% }) %>
+            </div>
+            <% if (campground.images.length > 1) { %>
+            <button class="carousel-control-prev" type="button" data-bs-target="#campgroundCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#campgroundCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+            <% } %>
+        </div>
         <div class="card mb-3">
-            <img src="<%= campground.image %>" class="card-img-top" alt="camp-photo">
             <div class="card-body">
             <h5 class="card-title"><%= campground.title %></h5>
             <p class="card-text"><%= campground.description %></p>
@@ -21,7 +39,7 @@
                         <button class="btn btn-danger">Delete</button>
                     </form>
                 </div>
-            <% } %> 
+            <% } %>
             <div class="card-footer text-muted">
                 2 days ago
             </div>
@@ -55,7 +73,7 @@
                 </div>
                 <button class="btn btn-success">Submit</button>
             </form>
-        <% } %>  
+        <% } %>
         <% for (let review of campground.reviews) { %>
             <div class="card mb-3">
                 <div class="card-body">
@@ -68,7 +86,7 @@
                     <form action="/campgrounds/<%= campground._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
                         <button class="btn btn-sm btn-danger">Delete</button>
                     </form>
-                    <% } %> 
+                    <% } %>
                 </div>
             </div>
         <% } %>

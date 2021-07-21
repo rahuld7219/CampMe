@@ -3,10 +3,25 @@ const Review = require('./review');
 
 const Schema = mongoose.Schema; // for shorthand, can also do as -> const { Schema } = mongoose
 
+// we don't create model for this, we just define this outside of campgroundSchema so that we can assign a virtual property on it
+// as virtual property can only be defined on a schema
+const imageSchema = new Schema({
+        url: String,
+        filename: String
+});
+
+// defining a virtual property(thumbnail) on imageSchema to get smaller image from cloudinary
+// this property not stored in the database, but calculated from the stored url property of the imageSchema and returned on the go
+// whenever on an image document we call thumbnail
+imageSchema.virtual('thumbnail').get(function () {
+    return this.url.replace('/upload', '/upload/w_200,h_200');
+    // https://res.cloudinary.com.../upload/v162/YelpCamp/river.jpg => https://res.cloudinary.com.../upload/w_200/v162/YelpCamp/river.jpg
+});
+
 const campgroundSchema = new Schema({
     title: String,
     location: String,
-    image: String,
+    images: [imageSchema], // array of image documents
     price: Number,
     description: String,
     author: {
