@@ -1,6 +1,13 @@
 const Campground = require('../models/campground');
 const { cloudinary } = require('../cloudinary'); // node automatically imports index.js from a folder
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding'); // import geocoding.js, 
 
+
+const mapboxToken = process.env.MAPBOX_TOKEN;
+
+// instantiating/initializing a new mapbox geocoding instance (create a geocoding client)
+// geocoder exposes forwardGeocode() and reverseGeocode()
+const geocoder = mbxGeocoding({ accessToken: mapboxToken });
 
 module.exports.index = async (req, res) => {
     const campgrounds = await Campground.find({});
@@ -12,8 +19,16 @@ module.exports.renderNewForm = (req, res) =>{
 };
 
 module.exports.createCampground = async (req, res, next) => {
-    // if (!req.body.campground) throw new ExpressError("Inavlid Campground data", 400);
+
+    // forward-geocoding the location
+    const geoData = await geocoder.forwardGeocode({ // create a MapiRequest object
+        query: req.body.campground.location, // give location string
+        limit: 1 //  Limit the number of results returned. (optional, default 5)
+    })
+    .send(); // send MapiRequest object, geoData stores MapiResponse or MapiError object
+
     const campground = new Campground(req.body.campground);
+    campground.geometry = geoData.body.features[0].geometry; // adding geospatial data of the location
     campground.images = req.files.map( f => ({ url: f.path, filename: f.filename }) ); // add images to the campground
     campground.author = req.user._id;
     await campground.save();

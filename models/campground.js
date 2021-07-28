@@ -21,6 +21,18 @@ imageSchema.virtual('thumbnail').get(function () {
 const campgroundSchema = new Schema({
     title: String,
     location: String,
+    // to store geographical data of the location in geoJSON format
+    geometry: {
+        type: {
+            type: String,
+            enum: ['Point'], // as location type must be 'Point' in geoJSON to represent a point location on the map
+            required: true
+        },
+        coordinates: {
+            type: [Number], // it will be [longitude, latitude] in geoJSON, to store point coordinates
+            required: true
+        }
+    },
     images: [imageSchema], // array of image documents
     price: Number,
     description: String,

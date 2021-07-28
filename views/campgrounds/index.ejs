@@ -6,6 +6,9 @@
             <div class="col-md-4">
                 <% if(campground.images.length > 0) { %>
                 <img class="img-fluid" src="<%= campground.images[0].url %>" alt="camp-image">
+                <% } else { %>
+                    <!-- if campground have no image then set it to some default image -->
+                    <img class="img-fluid" src="https://res.cloudinary.com/dkrwyznvg/image/upload/v1627387531/YelpCamp/d4fudzhkogcyyhvizofg.jpg" alt="camp-image">
                 <% } %>
             </div>
             <div class="col-md-8">
