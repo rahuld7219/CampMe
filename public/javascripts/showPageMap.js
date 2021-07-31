@@ -7,6 +7,9 @@ center: campground.geometry.coordinates, // starting position [lng, lat]
 zoom: 11 // starting zoom
 });
 
+// Add zoom and rotation controls to the map.
+map.addControl(new mapboxgl.NavigationControl());
+
 // Create a default Marker, colored black, rotated 15 degrees and add it to the map.
 new mapboxgl.Marker({ color: 'black', rotation: 15})
 .setLngLat(campground.geometry.coordinates)
