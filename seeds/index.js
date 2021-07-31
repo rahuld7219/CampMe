@@ -24,14 +24,17 @@ const pickRandom = (array) => array[Math.floor(Math.random() * array.length)];
 // 1st deletes the collection data then insert 50 Campground documents with random title, location, image and price
 const seedDB = async () => {
     await Campground.deleteMany({});  //deletes everything in the 'campgrounds' collection
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 500; i++) {
         const rand1000 = Math.floor(Math.random() * 1000); // generates a random integer in [0, 999]
         const price = Math.floor(Math.random() * 30) + 20;
         const camp = new Campground({
             author: "60ee9110e5635043a4e5d159",
             title: `${pickRandom(descriptors)} ${pickRandom(places)}`,
             location: `${cities[rand1000].city}, ${cities[rand1000].state}`,
-            geometry: { type: 'Point', coordinates: [ 72.8777, 19.0760, ] },
+            geometry: {
+                type: 'Point',
+                coordinates: [ cities[rand1000].longitude, cities[rand1000].latitude ] // as our cities.js have lat-long also
+            },
             description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui quaerat debitis cum expedita. Repellat cum tenetur est ipsam dolores, voluptate delectus nesciunt aut architecto vitae. Molestias ut necessitatibus magnam. Dolores?",
             price,
             images: [

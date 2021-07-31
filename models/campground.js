@@ -14,9 +14,12 @@ const imageSchema = new Schema({
 // this property not stored in the database, but calculated from the stored url property of the imageSchema and returned on the go
 // whenever on an image document we call thumbnail
 imageSchema.virtual('thumbnail').get(function () {
-    return this.url.replace('/upload', '/upload/w_200,h_200');
+    return this.url.replace('/upload', '/upload/w_200,h_200'); // this refers to the document for which the virtual has been called
     // https://res.cloudinary.com.../upload/v162/YelpCamp/river.jpg => https://res.cloudinary.com.../upload/w_200/v162/YelpCamp/river.jpg
 });
+
+// to include virtuals also whenever a document converted to JSON
+const opts = {toJSON: { virtuals: true }};
 
 const campgroundSchema = new Schema({
     title: String,
@@ -46,6 +49,18 @@ const campgroundSchema = new Schema({
             ref: 'Review'
         }
     ]
+}, opts);
+
+// setting a virtual on campground
+// (it is used as a popup when an unclustered campgoround point clicked on the cluster map, as mapbox expect the geoJSON object with a properties field)
+// In campgroundSchema it can be visualized like below
+// properties: {
+//                 popupMarkup: ...
+//             }
+campgroundSchema.virtual('properties.popupMarkup').get(function () {
+    return `
+    <strong><a href="/campgrounds/${this._id}">${this.title}</a>
+    <p>${this.description.substring(0, 30)}...</p></strong>`;  // this refers to the document for which the virtual has been called
 });
 
 // defines mongoose post middleware (function).
