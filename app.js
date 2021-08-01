@@ -10,6 +10,7 @@ const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
 const flash = require('connect-flash');
+const mongoSanitize = require('express-mongo-sanitize'); // To prevent from some mongo injection attacks
 const ExpressError = require('./utils/expressError');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 //(urlencoded data means normal default form data i.e., data of form having enctype of application/x-www-form-urlencoded)
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public'))); // to serve static files like javascripts, css, audio, images, logo, etc.
+app.use(mongoSanitize()); //remove the keys containing '$' or '.' from req.body, req.query or req.params
 
 app.engine('ejs', ejsMate); // tells to use ejs-mate engine for all ejs templates
 app.set('views', path.join(__dirname, 'views'));
