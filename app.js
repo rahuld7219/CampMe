@@ -11,6 +11,7 @@ const ejsMate = require('ejs-mate');
 const session = require('express-session');
 const flash = require('connect-flash');
 const mongoSanitize = require('express-mongo-sanitize'); // To prevent from some mongo injection attacks
+const helmet = require('helmet'); // To set various http headers in order to provide security to our app from some attacks(helps mitigate some XSS attacks, among other things)
 const ExpressError = require('./utils/expressError');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
@@ -20,6 +21,59 @@ const LocalStrategy = require('passport-local'); // to authenticate using a user
 const User = require('./models/user');
 
 const app = express();
+
+app.use(helmet()); // using all 11 default middlewares of helmet (remember to configure contentSecurityPolicy rules if using some third party content like CDNs, APIs, etc)
+
+// allowed javascripts sources
+const scriptSrcUrls = [
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://api.mapbox.com/",
+    "https://kit.fontawesome.com/",
+    "https://cdnjs.cloudflare.com/",
+    "https://cdn.jsdelivr.net",
+];
+// allowed stylesheets sources
+const styleSrcUrls = [
+    "https://kit-free.fontawesome.com/",
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.mapbox.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://fonts.googleapis.com/",
+    "https://use.fontawesome.com/",
+    "https://cdn.jsdelivr.net"
+];
+// allowed sources that you can connect to (via XHR, etc.)
+const connectSrcUrls = [
+    "https://api.mapbox.com/",
+    "https://a.tiles.mapbox.com/",
+    "https://b.tiles.mapbox.com/",
+    "https://events.mapbox.com/",
+];
+// allowed font sources
+const fontSrcUrls = [];
+
+//contentSecurityPolicy(CSP) configurations using Helmet
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: [],
+            connectSrc: ["'self'", ...connectSrcUrls],
+            scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+            styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: [],
+            imgSrc: [
+                "'self'",
+                "blob:",
+                "data:",
+                "https://res.cloudinary.com/dkrwyznvg/", //SHOULD MATCH CLOUDINARY ACCOUNT NAME!
+                "https://images.unsplash.com/",
+            ],
+            fontSrc: ["'self'", ...fontSrcUrls],
+        },
+    })
+);
 
 app.use(express.urlencoded({ extended: true }));
 // using a body-parsing middleware, to tell express how to parse the received urlencoded data(payload) to JS object.
@@ -55,12 +109,26 @@ db.once("open", () => {
 
 // setting options object to setup a session
 const sessionConfig = {
+
+    // change the session cookie name from the default name(connect.sid), so that any attacker just can't find it extremely easily
+    name: 'session',
+
     secret: "this_should_be_a_better_secret_key!", // setting a secret key to sign the session id cookie
     resave: false,
     saveUninitialized: true,
+
     // setup some parameters for session id cookie sent
     cookie: {
-        httpOnly: true, //  helps mitigate the risk of client side script accessing the protected cookie, it is also by default true even if we don't specify
+
+        // specify that session cookies will only be accessible over http not by javascript,
+        // this helps mitigate the risk of client side script accessing the protected cookie using document.cookie,
+        // it is also by default true even if we don't specify
+        httpOnly: true,
+
+        // specify that session cookie only work over https,
+        // by setting the secure attribute, the browser will prevent the transmission of a cookie over an unencrypted channel.
+    /*  secure: true, */ // comment this when over localhost
+
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // expiration date for cookie in ms, counted from when sent
         maxAge: 7 * 24 * 60 * 60 * 1000 // time duration for the cookie before expiring
     }

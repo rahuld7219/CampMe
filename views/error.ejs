@@ -4,7 +4,9 @@
     <div class="col-8 offset-2">
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading"><%= err.message %> </h4>
-            <p class="mb-0"><%= err.stack %>.</p>
+            <% if (process.env.NODE_ENV !== "production") { %>
+            <p class="mb-0"><%= err.stack %>.</p> <!-- show error stack only in development mode-->
+            <% } %>
         </div>
     </div>
 </div>
