@@ -112,7 +112,7 @@ db.once("open", () => {
 });
 
 const mongoStoreSecret = process.env.MONGO_STORE_SECRET || "not_a_good_secret_key!";
-const sessionSignSecret = process.env.MONGO_STORE_SECRET || "this_should_be_a_better_secret_key!";
+const sessionSignSecret = process.env.SESSION_SIGN_SECRET || "this_should_be_a_better_secret_key!";
 
 // configuring mongodb store
 const store = MongoStore.create({
@@ -220,6 +220,8 @@ app.use((err, req, res, next) => {
     res.status(statusCode).render('error', { err });
 });
 
-app.listen(8080, () => {
-    console.log("SERVING ON PORT 8080!!!");
+const port = process.env.PORT || 8080;
+
+app.listen(port, () => {
+    console.log(`SERVING ON PORT ${port}!!!`);
 });
