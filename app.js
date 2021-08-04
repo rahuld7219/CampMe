@@ -1,4 +1,6 @@
-// require and configure dotenv package in development mode
+// require and configure dotenv package in development mode,
+// to use environment variables defined in .env file.
+// (In production, we use environment variables configured on deployed platform like Heroku, etc)
 if (process.env.NODE_ENV !== "production") {
 	require('dotenv').config();
 }
@@ -9,6 +11,7 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
+const MongoStore = require('connect-mongo'); // To store session data in mongo database
 const flash = require('connect-flash');
 const mongoSanitize = require('express-mongo-sanitize'); // To prevent from some mongo injection attacks
 const helmet = require('helmet'); // To set various http headers in order to provide security to our app from some attacks(helps mitigate some XSS attacks, among other things)
@@ -87,7 +90,8 @@ app.engine('ejs', ejsMate); // tells to use ejs-mate engine for all ejs template
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-mongoose.connect('mongodb://localhost:27017/yelp-camp', {
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp';
+mongoose.connect(dbUrl, {
     useFindAndModify:false,
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -107,15 +111,34 @@ db.once("open", () => {
     console.log("Database connected!!");
 });
 
+const mongoStoreSecret = process.env.MONGO_STORE_SECRET || "not_a_good_secret_key!";
+const sessionSignSecret = process.env.MONGO_STORE_SECRET || "this_should_be_a_better_secret_key!";
+
+// configuring mongodb store
+const store = MongoStore.create({
+    mongoUrl: dbUrl, // database url, can use different mongo database for the session than the application, but we used the same
+    touchAfter: 24 * 60 * 60, // in sec, update the session once in every 24hrs, does not matter how many request's are made (with the exception of those that change something on the session data)
+    crypto: {
+        secret: mongoStoreSecret // for encryption/decryption of session data
+    }
+});
+
+store.on("error", function (err) {
+    console.log("SESSION STORE ERROR!", err);
+});
+
 // setting options object to setup a session
 const sessionConfig = {
+
+    // specfying where to store the session (by default, store in memory store)
+    store, // store session in mongodb
 
     // change the session cookie name from the default name(connect.sid), so that any attacker just can't find it extremely easily
     name: 'session',
 
-    secret: "this_should_be_a_better_secret_key!", // setting a secret key to sign the session id cookie
-    resave: false,
-    saveUninitialized: true,
+    secret: sessionSignSecret, // setting a secret key to sign the session id cookie
+    resave: false, //don't save session if unmodified
+    saveUninitialized: false, // don't create session until something stored
 
     // setup some parameters for session id cookie sent
     cookie: {
@@ -132,7 +155,7 @@ const sessionConfig = {
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // expiration date for cookie in ms, counted from when sent
         maxAge: 7 * 24 * 60 * 60 * 1000 // time duration for the cookie before expiring
     }
-}
+};
 
 // mounting/executing session middleware
 app.use(session(sessionConfig));
