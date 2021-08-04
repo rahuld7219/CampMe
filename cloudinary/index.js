@@ -1,5 +1,10 @@
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+}
+
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+// a multer storage engine for Cloudinary) for easy multer and cloudinary integration.
 
 // configuring cloudinary API credentials
 cloudinary.config({
@@ -14,7 +19,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary, // cloudinary configured with API credentials
     params: {
-        folder: 'YelpCamp',  // folder name at cloudinary in which files will be stored
+        folder: process.env.CLOUDINARY_DIR,  // folder name at cloudinary in which files will be stored
         allowedFormats: ['jpeg', 'png', 'jpg']
     }
 });

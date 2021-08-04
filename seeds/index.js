@@ -5,7 +5,7 @@ const Campground = require('../models/campground');
 const cities = require('./cities');
 const { descriptors, places } = require('./seedHelpers');
 
-mongoose.connect('mongodb://localhost:27017/yelp-camp', {
+mongoose.connect('mongodb://localhost:27017/campdb', {
     useFindAndModify: false,
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -28,7 +28,7 @@ const seedDB = async () => {
         const rand1000 = Math.floor(Math.random() * 1000); // generates a random integer in [0, 999]
         const price = Math.floor(Math.random() * 30) + 20;
         const camp = new Campground({
-            author: "60ee9110e5635043a4e5d159",
+            author: "615ece71592c1360d499a4f2",
             title: `${pickRandom(descriptors)} ${pickRandom(places)}`,
             location: `${cities[rand1000].city}, ${cities[rand1000].state}`,
             geometry: {
@@ -39,12 +39,12 @@ const seedDB = async () => {
             price,
             images: [
                 {
-                    url: 'https://res.cloudinary.com/dkrwyznvg/image/upload/v1626849189/YelpCamp/bubbftbptpxw9gse36in.jpg',
-                    filename: 'YelpCamp/bubbftbptpxw9gse36in'
+                    url: 'https://res.cloudinary.com/dkrwyznvg/image/upload/v1632751890/seeder/autumn_cqyggb.jpg',
+                    filename: 'seeder/autumn_cqyggb'
                 },
                 {
-                    url: 'https://res.cloudinary.com/dkrwyznvg/image/upload/v1626849420/YelpCamp/awqnhvhzbor9d1uhuhrd.jpg',
-                    filename: 'YelpCamp/awqnhvhzbor9d1uhuhrd'
+                    url: 'https://res.cloudinary.com/dkrwyznvg/image/upload/v1632751889/seeder/mountains_e6mznu.jpg',
+                    filename: 'seeder/mountains_e6mznu'
                 }
             ]
         });

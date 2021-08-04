@@ -12,7 +12,7 @@ module.exports.register = async (req, res) => {
         const registeredUser = await User.register(user, password);
         req.login(registeredUser, (err) => { // to establish a login session
             if(err) return next(err);
-            req.flash('success', 'Welcome to Yelp Camp!');
+            req.flash('success', 'Welcome to CampMe!');
             res.redirect('/campgrounds');
         });
     } catch (err) { // to flash any error message like if a username already registered

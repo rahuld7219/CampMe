@@ -9,7 +9,7 @@
                 <img class="img-fluid" src="<%= campground.images[0].url %>" alt="camp-image">
                 <% } else { %>
                     <!-- if campground have no image then set it to some default image -->
-                    <img class="img-fluid" src="https://res.cloudinary.com/dkrwyznvg/image/upload/v1627387531/YelpCamp/d4fudzhkogcyyhvizofg.jpg" alt="camp-image">
+                    <img class="img-fluid" src="https://res.cloudinary.com/dkrwyznvg/image/upload/v1632753128/seeder/no_image_placeholder_rhcxzu.png" alt="no-image">
                 <% } %>
             </div>
             <div class="col-md-8">
@@ -29,7 +29,9 @@
 <!-- Handing data from back-end to client-end(to clusterMap.js) -->
 <script>
     const mapToken = '<%- process.env.MAPBOX_TOKEN %>';
-    const campgrounds = { features: <%- JSON.stringify(campgrounds) %> }; // as mapbox clustermap expects source data as a geoJSON with an array under a key named "features"
+    const campgrounds = { features: <%- JSON.stringify(campgrounds) %> };
+    // as mapbox clustermap expects source data as a geoJSON with an array under a key named "features"
+    // here we are sending entire campground data but can send only those fields of campgrounds which are required
 </script>
 
 <script src="/javascripts/clusterMap.js"></script>

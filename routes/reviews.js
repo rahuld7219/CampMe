@@ -5,7 +5,8 @@ const reviews = require('../controllers/reviews');
 
 // creating a router object
 const router = express.Router({ mergeParams: true });
-// routers have their own separate params, so to access params of passed path by app.use, we pass mergeParams set to true to the express.Router()
+// routers have their own separate params, so to access params of passed path by app.use,
+// we pass mergeParams set to true to the express.Router()
 
 // Route to add a review to a campground by a user
 router.post('/', isLoggedIn, validateReview, catchAsync(reviews.createReview));

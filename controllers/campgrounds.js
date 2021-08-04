@@ -11,7 +11,7 @@ const geocoder = mbxGeocoding({ accessToken: mapboxToken });
 
 module.exports.index = async (req, res) => {
     const campgrounds = await Campground.find({});
-    res.render('campgrounds/index', { campgrounds });
+    res.render('campgrounds/index', { campgrounds }); // evaluate the '/views/campgrounds/index.ejs' according to the EJS template engine to HTML and sends the rendered HTML string to the client.
 };
 
 module.exports.renderNewForm = (req, res) =>{
@@ -31,9 +31,9 @@ module.exports.createCampground = async (req, res, next) => {
     campground.geometry = geoData.body.features[0].geometry; // adding geospatial data of the location
     campground.images = req.files.map( f => ({ url: f.path, filename: f.filename }) ); // add images to the campground
     campground.author = req.user._id;
-    await campground.save();
+    await campground.save(); // save the document to the database and returns promise
     req.flash('success', "Successfully made a new campground!"); // set a flash message
-    res.redirect(`/campgrounds/${campground._id}`);
+    res.redirect(`/campgrounds/${campground._id}`); // res.redirect([status,] path), status defaults to  302 found, response header's location field having value of the specified path to redirect to
 };
 
 module.exports.showCampground = async (req, res) => {
@@ -68,7 +68,17 @@ module.exports.renderEditForm = async (req, res) => {
 module.exports.updateCampground = async (req, res) => {
     const { id } = req.params;
     const { deleteImages } = req.body;
+
+    // forward-geocoding the location
+    const geoData = await geocoder.forwardGeocode({ // create a MapiRequest object
+        query: req.body.campground.location, // give location string
+        limit: 1 //  Limit the number of results returned. (optional, default 5)
+    })
+    .send(); // send MapiRequest object, geoData stores MapiResponse or MapiError object
+
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    campground.geometry = geoData.body.features[0].geometry; // adding geospatial data of the location
+    
     if (deleteImages) { // if there is an array of images to delete
         for (let filename of deleteImages) {
             await cloudinary.uploader.destroy(filename); // delete images from the cloudinary

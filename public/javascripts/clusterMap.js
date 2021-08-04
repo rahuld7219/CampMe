@@ -66,7 +66,8 @@ map.on('load', function () {
         source: 'campgrounds',
         filter: ['has', 'point_count'],
         layout: {
-            'text-field': '{point_count_abbreviated}', // text on the cluster circle, here it shows number of points in a cluster
+            // text on the cluster circle, here it shows number of points in a cluster
+            'text-field': '{point_count_abbreviated}',
             'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
             'text-size': 12
         }
@@ -113,7 +114,8 @@ map.on('load', function () {
         const coordinates = e.features[0].geometry.coordinates.slice();
 
         // properties.popupMarkup is a virtual in our campground schema at backend
-        //(we can setup a popup markup here at front-end also by writing logic in Javascript, but we prefer to write most logic at backend)
+        //(we can setup a popup markup here at front-end also by writing logic in Javascript,
+        // but we prefer to write most logic at backend)
         const { popupMarkup } = e.features[0].properties;
 
         // Ensure that if the map is zoomed out such that

@@ -3,24 +3,27 @@ const Review = require('./review');
 
 const Schema = mongoose.Schema; // for shorthand, can also do as -> const { Schema } = mongoose
 
-// we don't create model for this, we just define this outside of campgroundSchema so that we can assign a virtual property on it
-// as virtual property can only be defined on a schema
+// we don't create model for this, we just define this outside of campgroundSchema so that we can assign
+// a virtual property on it, as virtual property can only be defined on a schema
 const imageSchema = new Schema({
-        url: String,
-        filename: String
+    url: String,
+    filename: String
 });
 
 // defining a virtual property(thumbnail) on imageSchema to get smaller image from cloudinary
-// this property not stored in the database, but calculated from the stored url property of the imageSchema and returned on the go
-// whenever on an image document we call thumbnail
+// this property not stored in the database, but calculated from the stored url property
+// of the imageSchema and returned on the go whenever on an image document we call the thumbnail
 imageSchema.virtual('thumbnail').get(function () {
-    return this.url.replace('/upload', '/upload/w_200,h_200'); // this refers to the document for which the virtual has been called
-    // https://res.cloudinary.com.../upload/v162/YelpCamp/river.jpg => https://res.cloudinary.com.../upload/w_200/v162/YelpCamp/river.jpg
+    // `this` refers to the document for which the virtual has been called
+    return this.url.replace('/upload', '/upload/w_200,h_200');
+    // https://res.cloudinary.com.../upload/v162/CampMe/river.jpg  =>
+    // https://res.cloudinary.com.../upload/w_200/v162/CampMe/river.jpg
 });
 
-// to include virtuals also whenever a document converted to JSON
-const opts = {toJSON: { virtuals: true }};
+// to include virtuals also, whenever a document converted to JSON and to include createdAt and updatedAt fields
+const opts = { toJSON: { virtuals: true }, timestamps: true };
 
+// creates a schema for a collection(represented by Model in mongoose)
 const campgroundSchema = new Schema({
     title: String,
     location: String,
@@ -28,7 +31,7 @@ const campgroundSchema = new Schema({
     geometry: {
         type: {
             type: String,
-            enum: ['Point'], // as location type must be 'Point' in geoJSON to represent a point location on the map
+            enum: ['Point'], // as location type must be 'Point' to represent a point location on the map
             required: true
         },
         coordinates: {
@@ -60,20 +63,25 @@ const campgroundSchema = new Schema({
 campgroundSchema.virtual('properties.popupMarkup').get(function () {
     return `
     <strong><a href="/campgrounds/${this._id}">${this.title}</a>
-    <p>${this.description.substring(0, 30)}...</p></strong>`;  // this refers to the document for which the virtual has been called
+    <p>${this.description.substring(0, 30)}...</p></strong>`;
+    // this refers to the document for which the virtual has been called
 });
 
 // defines mongoose post middleware (function).
-// (runs after findOneAndDelete()/findByIdAndDelete() on the campground) to remove reviews associated with the deleted campground.
-// as below is a query middleware hence 'this' keyword refers to the query here, if it was a document middleware then 'this' would refer the deleted campground document.
+// (runs after findOneAndDelete()/findByIdAndDelete() on the campground)
+// to remove reviews associated with the deleted campground.
+// as below is a query middleware hence 'this' keyword refers to the query here,
+// if it was a document middleware then 'this' would refer the deleted campground document.
 campgroundSchema.post('findOneAndDelete', async function (campground) {
-    if(campground) { // if the campground was deleted
+    if (campground) { // if the campground was deleted
         await Review.deleteMany({ // delete reviews where review._id is in campground.reviews array
             _id: {
-                 $in: campground.reviews
+                $in: campground.reviews
             }
         });
     }
 });
 
+// creates a model (a model subclass) 'Campground' with the above schema
+// it creates a collection named 'campgrounds' in mongodb database (but only after we save() )
 module.exports = mongoose.model('Campground', campgroundSchema);

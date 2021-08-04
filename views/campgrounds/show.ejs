@@ -5,12 +5,19 @@
     <div class="col-6">
         <div id="campgroundCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-inner">
-              <% campground.images.forEach((img, i) => { %>
-              <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
-                <img src="<%= img.url %>" class="d-block w-100" alt="camp-slide-image">
-              </div>
-              <% }) %>
+              <% if(campground.images.length > 0) { %>
+                <% campground.images.forEach((img, i) => { %>
+                    <!-- To set the 1st image in the slide -->
+                <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
+                    <img src="<%= img.url %>" class="d-block w-100" alt="camp-slide-image">
+                </div>
+                <% }) %>
+                <% } else { %>
+                    <!-- if campground have no image then set it to some default image -->
+                    <img class="img-fluid" src="https://res.cloudinary.com/dkrwyznvg/image/upload/v1632753128/seeder/no_image_placeholder_rhcxzu.png" alt="no-image">
+                <% } %>
             </div>
+            <!-- Show navigation butttons for the slide iff there are more than 1 images -->
             <% if (campground.images.length > 1) { %>
             <button class="carousel-control-prev" type="button" data-bs-target="#campgroundCarousel" data-bs-slide="prev">
               <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -41,7 +48,7 @@
                 </div>
             <% } %>
             <div class="card-footer text-muted">
-                2 days ago
+                <%= new Date(campground.createdAt).toDateString() %>
             </div>
         </div>
     </div>
@@ -95,20 +102,30 @@
 </section>
 
 
-<!-- Below script handing the required data from server to client side, instead of below script you can make an API endpoint and use AJAX in showPageMap.js so that browser fetch these data after the page loads -->
+<!-- Below script handing the required data from server to client side,
+     instead of below script you can make an API endpoint and use AJAX in showPageMap.js
+     so that browser fetch these data after the page loads -->
 <script>
-    // as 'process.env' exist at backend only. So, to access the mapbox public token id we write the below code in separate script tag,
-    // so that at backend EJS engine can run below code and replace it with the token value to store in the mapToken variable
-    // then that token id will be accessible in the below included showPageMap.js file at the client-side by the browser
+    // as 'process.env' exist at backend only. So, to access the mapbox public token id
+    // we write the below code in separate script tag,
+    // so that at backend EJS engine can run below code and replace it with the token
+    // value to store in the mapToken variable
+    // then that token id will be accessible
+    // in the below included showPageMap.js file at the client-side by the browser
     const mapToken = '<%- process.env.MAPBOX_TOKEN %>';
 
-    // provide campground data with converting JS object to JSON(as _id value is alphanumeric and there would be no mongodb _id field at client-side, so _id should be string there)
-    const campground = <%- JSON.stringify(campground) %>; // as we only need coordinates, so we can only pass camground.geometry.coordinates also
+    // provide campground data with converting JS object to JSON
+    // (as _id value is alphanumeric and there would be no mongodb _id field at client-side,
+    // so _id should be string there)
+    const campground = <%- JSON.stringify(campground) %>;
+    // as we only need coordinates, so we can only pass camground.geometry.coordinates instead
+    
     /*
     VS code shows false-positive error in above code, as it do not understand EJS well
     If want, you can update below setting in vs-code
     "html.validate.scripts": false
     */
+   
 </script>
 
 <script src="/javascripts/showPageMap.js"></script>

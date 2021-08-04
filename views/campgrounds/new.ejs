@@ -2,17 +2,35 @@
 <section class="row">
     <h1 class="text-center">New Campground</h1>
     <div class="col-md-6 offset-md-3">
-        <form action="/campgrounds" method="POST" enctype="multipart/form-data" class="validated-form" novalidate>
+        <form
+            action="/campgrounds"
+            method="POST"
+            enctype="multipart/form-data"
+            class="validated-form"
+            novalidate
+        >
             <div class="mb-3">
                 <label class="form-label" for="title">Name: </label>
-                <input class="form-control" type="text" name="campground[title]" id="title" required>
+                <input
+                    class="form-control"
+                    type="text"
+                    name="campground[title]"
+                    id="title"
+                    required
+                >
                 <div class="valid-feedback">
                     Looks good!
                 </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="location">Location: </label>
-                <input class="form-control" type="text" name="campground[location]" id="location" required>
+                <input
+                    class="form-control"
+                    type="text"
+                    name="campground[location]"
+                    id="location"
+                    required
+                >
                 <div class="valid-feedback">
                     Looks good!
                 </div>
@@ -21,7 +39,16 @@
                 <label class="form-label" for="price">Campground Price: </label>
                 <div class="input-group">
                     <span class="input-group-text" id="price-unit">$</span>
-                    <input class="form-control" type="text" name="campground[price]" id="price" placeholder="0.00" aria-label="price" aria-describedby="price-unit" required>
+                    <input
+                        class="form-control"
+                        type="number"
+                        name="campground[price]"
+                        id="price"
+                        placeholder="0.00"
+                        aria-label="price"
+                        aria-describedby="price-unit"
+                        required
+                    >
                     <div class="valid-feedback">
                         Looks good!
                     </div>
@@ -29,7 +56,13 @@
             </div>
             <div class="mb-3">
                 <label class="form-label" for="description">Description: </label>
-                <textarea class="form-control" name="campground[description]" id="description" rows="3" required></textarea>
+                <textarea
+                    class="form-control"
+                    name="campground[description]"
+                    id="description"
+                    rows="3"
+                    required
+                ></textarea>
                 <div class="valid-feedback">
                     Looks good!
                 </div>
