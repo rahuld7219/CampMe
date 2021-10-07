@@ -1,5 +1,5 @@
 mapboxgl.accessToken = mapToken;
-// create a default map and it would be displayed in the container having id attribute's value = 'map'
+// create a default map
 const map = new mapboxgl.Map({
         container: 'map', // container ID
         // style URL, can change style from streets-v11 to others like satellite-v9, etc.

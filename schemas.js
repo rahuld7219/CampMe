@@ -1,11 +1,11 @@
-// describe schemas for data validation using joi (it has nothing to do with express, mongoose or mongo)
+// describe schemas for data validation using joi
 // used to validate the data at server side, i.e., validate the data such as  req.body, etc. at server
 const BaseJoi = require('joi');
 const sanitizeHtml = require('sanitize-html'); // to escape HTML tags
 
 // defining a custom joi validator extension to validate if there is any HTML tags, so we can escape HTML tags in our input fields to prevent some common XSS attacks
 const extension = (joi) => ({
-    type: 'string', // type of this custom schema, it can be anything in string form
+    type: 'string', // type of this custom schema
     base: joi.string(), // the base schema to extend from
     messages: {
         'string.escapeHTML': '{{#label}} must not include HTML!' // error message
@@ -35,7 +35,6 @@ module.exports.campgroundSchema = Joi.object({
     campground: Joi.object({
         title: Joi.string().required().escapeHTML(), // invoking escapeHTML to validate
         price: Joi.number().required().min(0),
-        // image: Joi.string().required(), // as images get in req.files due to using multer package
         location: Joi.string().required().escapeHTML(),
         description: Joi.string().escapeHTML()
     }).required(),

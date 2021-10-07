@@ -1,5 +1,5 @@
 const Campground = require('../models/campground');
-const { cloudinary } = require('../cloudinary'); // node automatically imports index.js from a folder
+const { cloudinary } = require('../cloudinary');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding'); // import geocoding.js, 
 
 
@@ -11,7 +11,7 @@ const geocoder = mbxGeocoding({ accessToken: mapboxToken });
 
 module.exports.index = async (req, res) => {
     const campgrounds = await Campground.find({});
-    res.render('campgrounds/index', { campgrounds }); // evaluate the '/views/campgrounds/index.ejs' according to the EJS template engine to HTML and sends the rendered HTML string to the client.
+    res.render('campgrounds/index', { campgrounds });
 };
 
 module.exports.renderNewForm = (req, res) =>{
@@ -23,30 +23,26 @@ module.exports.createCampground = async (req, res, next) => {
     // forward-geocoding the location
     const geoData = await geocoder.forwardGeocode({ // create a MapiRequest object
         query: req.body.campground.location, // give location string
-        limit: 1 //  Limit the number of results returned. (optional, default 5)
+        limit: 1 //  Limit the number of results returned. (default 5)
     })
     .send(); // send MapiRequest object, geoData stores MapiResponse or MapiError object
 
     const campground = new Campground(req.body.campground);
-    campground.geometry = geoData.body.features[0].geometry; // adding geospatial data of the location
+    campground.geometry = geoData.body.features[0].geometry;
     campground.images = req.files.map( f => ({ url: f.path, filename: f.filename }) ); // add images to the campground
     campground.author = req.user._id;
-    await campground.save(); // save the document to the database and returns promise
+    await campground.save();
     req.flash('success', "Successfully made a new campground!"); // set a flash message
-    res.redirect(`/campgrounds/${campground._id}`); // res.redirect([status,] path), status defaults to  302 found, response header's location field having value of the specified path to redirect to
+    res.redirect(`/campgrounds/${campground._id}`);
 };
 
 module.exports.showCampground = async (req, res) => {
     const campground = await Campground.findById(req.params.id)
         .populate({
-        path: 'reviews', // populate reviews array of the campground
-        populate: { path: 'author' } // populate author field for each review of the campground
+        path: 'reviews',
+        populate: { path: 'author' }
         })
-        .populate('author'); // populate author field of the campground
-
-        /* above we populated with every fields of the models but
-         if data is big then only populate with required fields, like only with username...
-        */
+        .populate('author');
 
     if (!campground) {
         req.flash('error', 'Cannot find that campground!');
@@ -70,14 +66,14 @@ module.exports.updateCampground = async (req, res) => {
     const { deleteImages } = req.body;
 
     // forward-geocoding the location
-    const geoData = await geocoder.forwardGeocode({ // create a MapiRequest object
-        query: req.body.campground.location, // give location string
-        limit: 1 //  Limit the number of results returned. (optional, default 5)
+    const geoData = await geocoder.forwardGeocode({
+        query: req.body.campground.location,
+        limit: 1
     })
-    .send(); // send MapiRequest object, geoData stores MapiResponse or MapiError object
+    .send();
 
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
-    campground.geometry = geoData.body.features[0].geometry; // adding geospatial data of the location
+    campground.geometry = geoData.body.features[0].geometry;
     
     if (deleteImages) { // if there is an array of images to delete
         for (let filename of deleteImages) {
@@ -96,7 +92,7 @@ module.exports.updateCampground = async (req, res) => {
 module.exports.deleteCampground = async (req, res) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
-    // after deleting, our mongoose middleware findOneAndDelete(a query middleware) for the campgroundSchema runs passing the deleted campground document as the parameter to its callback
+    // after deleting, our mongoose middleware findOneAndDelete for the campgroundSchema runs
     req.flash('success', "Successfully deleted the campground!");
     res.redirect('/campgrounds');
 };

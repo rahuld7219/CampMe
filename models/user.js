@@ -6,7 +6,7 @@ const userSchema = new Schema({
     email: {
         type: String,
         required: true,
-        unique: true // so that no duplicate email id inserted in user model(collection)
+        unique: true
     }
 });
 

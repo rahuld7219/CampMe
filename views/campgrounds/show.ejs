@@ -102,28 +102,18 @@
 </section>
 
 
-<!-- Below script handing the required data from server to client side,
-     instead of below script you can make an API endpoint and use AJAX in showPageMap.js
-     so that browser fetch these data after the page loads -->
+<!-- handing the required data from server to client side -->
 <script>
-    // as 'process.env' exist at backend only. So, to access the mapbox public token id
-    // we write the below code in separate script tag,
-    // so that at backend EJS engine can run below code and replace it with the token
     // value to store in the mapToken variable
     // then that token id will be accessible
     // in the below included showPageMap.js file at the client-side by the browser
     const mapToken = '<%- process.env.MAPBOX_TOKEN %>';
 
     // provide campground data with converting JS object to JSON
-    // (as _id value is alphanumeric and there would be no mongodb _id field at client-side,
-    // so _id should be string there)
     const campground = <%- JSON.stringify(campground) %>;
-    // as we only need coordinates, so we can only pass camground.geometry.coordinates instead
     
     /*
-    VS code shows false-positive error in above code, as it do not understand EJS well
-    If want, you can update below setting in vs-code
-    "html.validate.scripts": false
+    VS code shows false-positive error in above code
     */
    
 </script>

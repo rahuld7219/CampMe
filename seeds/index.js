@@ -52,6 +52,6 @@ const seedDB = async () => {
     }
 };
 
-seedDB().then(() => {               // as seedDB is async function it returns promise
+seedDB().then(() => {
     mongoose.connection.close();
 });

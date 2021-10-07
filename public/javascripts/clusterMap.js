@@ -113,9 +113,7 @@ map.on('load', function () {
     map.on('click', 'unclustered-point', function (e) {
         const coordinates = e.features[0].geometry.coordinates.slice();
 
-        // properties.popupMarkup is a virtual in our campground schema at backend
-        //(we can setup a popup markup here at front-end also by writing logic in Javascript,
-        // but we prefer to write most logic at backend)
+        // properties.popupMarkup is a virtual in our campground schema
         const { popupMarkup } = e.features[0].properties;
 
         // Ensure that if the map is zoomed out such that

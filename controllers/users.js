@@ -15,7 +15,7 @@ module.exports.register = async (req, res) => {
             req.flash('success', 'Welcome to CampMe!');
             res.redirect('/campgrounds');
         });
-    } catch (err) { // to flash any error message like if a username already registered
+    } catch (err) {
         req.flash('error', err.message);
         res.redirect('/register');
     }
@@ -28,7 +28,6 @@ module.exports.renderLogin = (req, res) => {
 module.exports.login = (req, res) => {
     req.flash('success', 'Welcome Back!');
     const redirectTo = req.session.returnTo || '/campgrounds';
-    // delete req.session.returnTo;
     res.redirect(redirectTo);
 };
 
