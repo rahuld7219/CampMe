@@ -192,12 +192,18 @@ const sessionConfig = {
         // // specify that session cookie only work over https,
         // // by setting the secure attribute, the browser will prevent
         // // the transmission of a cookie over an unencrypted channel.
-        // secure: true, // comment this when over localhost
+        // secure: true, // By default, the secure attribute is not set(i.e. false).
 
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // expiration date for cookie in ms, counted from when sent
         maxAge: 7 * 24 * 60 * 60 * 1000 // time duration for the cookie before expiring
     }
 };
+
+// In production mode
+if (app.get('env') === 'production') {
+    app.set('trust proxy', 1) // trust first proxy, so that secure option works correctly in production on heroku, etc
+    sessionConfig.cookie.secure = true // serve secure cookies(i.e., over HTTPS only)
+}
 
 // mounting/executing session middleware(provides req.session to store and access session)
 // also required for flash messages and session implemented by passport
