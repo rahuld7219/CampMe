@@ -1,7 +1,7 @@
 // run this file to seed the database with some initial campgrounds
 
 const mongoose = require('mongoose');
-const Campground = require('../models/campground');
+const Campground = require('../models/Campground');
 const cities = require('./cities');
 const { descriptors, places } = require('./seedHelpers');
 

@@ -1,7 +1,7 @@
-const Campground = require('../models/campground');
+const Campground = require('../models/Campground');
 const { cloudinary } = require('../cloudinary'); // node automatically imports index.js from a folder
-const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding'); // import geocoding.js, 
 
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding'); // import geocoding.js, 
 
 const mapboxToken = process.env.MAPBOX_TOKEN;
 

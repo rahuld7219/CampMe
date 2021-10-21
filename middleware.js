@@ -1,8 +1,8 @@
 /* ___________________________________________HELPER MIDDLEWARES_____________________________________________ */
 
 
-const Campground = require('./models/campground');
-const Review = require('./models/review');
+const Campground = require('./models/Campground');
+const Review = require('./models/Review');
 const ExpressError = require('./utils/expressError');
 const { campgroundSchema, reviewSchema } = require('./schemas');
 

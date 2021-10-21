@@ -33,7 +33,7 @@ const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
 const passport = require('passport'); // an authentication middleware for Node.
 const LocalStrategy = require('passport-local'); // to authenticate using a username and password
-const User = require('./models/user');
+const User = require('./models/User');
 
 const app = express();
 
